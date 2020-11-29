@@ -1,7 +1,10 @@
 import os
+import re
 import sys
 import xml.etree.ElementTree as et
 
+bush_regex = re.compile('Bush[^a-zA-Z]+')
+gore_regex = re.compile('Gore[^a-zA-Z]+')
 root = "nyt_corpus/data/2000"
 
 def parse_single_article(output_file, month, day, day_file):
@@ -12,11 +15,18 @@ def parse_single_article(output_file, month, day, day_file):
     if body_xml is None:
         return
 
-    body_str = et.tostring(body_xml, method="text")
-    if b"Bush" in body_str or b"Gore" in body_str:
-        body_str = body_str.replace(b"\n", b"")
-        body_str = f"{2000}/{month}/{day}\t".encode() + body_str.strip() + b"\n"
-        output_file.write(body_str.decode("utf-8"))
+    body_paragraphs = body_xml.findall("p")
+    filtered_output = ""
+
+    for paragraph in body_paragraphs:
+        paragraph_str = et.tostring(paragraph, "unicode", "text")
+        if bush_regex.search(paragraph_str) != None or gore_regex.search(paragraph_str) != None:
+            paragraph_str = paragraph_str.replace("\n", "").strip()
+            filtered_output = filtered_output + paragraph_str + " "
+            
+    if filtered_output != "":
+        body_str = f"{2000}/{month}/{day}\t" + filtered_output + "\n"
+        output_file.write(body_str)
 
 if __name__ == '__main__':
     output_file = open("sanitized_nyt.tsv", "w")
