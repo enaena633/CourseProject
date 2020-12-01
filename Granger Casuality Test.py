@@ -35,7 +35,7 @@ Gore['test'] = Gore['P_Gore_wins_3MA'] - 0.005
 
 def granger_test(data):
     #run granger test with maxlag of 5 days
-    granger_test_result = grangercausalitytests(data.iloc[:,1:], 5, addconst=True, verbose=True)
+    granger_test_result = grangercausalitytests(data.iloc[:,1:], 5, addconst=True, verbose=False)
 
     #get the optimal lag based on the highest F-test value
     optimal_lag = -1
