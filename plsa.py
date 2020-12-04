@@ -207,7 +207,7 @@ class Corpus(object):
                 for k in range(number_of_topics):
                     tmp += self.topic_word_prob[k, j] * self.document_topic_prob[i, k]
                 if tmp > 0:
-                    loglikelihood += term_doc_matrxi[i, j] * log(tmp)        
+                    loglikelihood += term_doc_matrxi[i, j] * math.log(tmp)        
         self.likelihoods.append(loglikelihood) """
                 
 
