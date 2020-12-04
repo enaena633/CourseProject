@@ -211,7 +211,7 @@ class Corpus(object):
         self.likelihoods.append(loglikelihood) """
                 
 
-    def plsa(self, number_of_topics, max_iter, epsilon, mu, prior):
+    def plsa(self, number_of_topics, max_iter, epsilon):
 
         """
         Model topics.
