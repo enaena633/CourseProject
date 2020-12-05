@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from datetime import datetime
+from dateutil import parser
 import gensim as gn
 from gensim import corpora
 from gensim.parsing.preprocessing import remove_stopwords, strip_numeric, strip_non_alphanum, strip_short
@@ -32,6 +33,7 @@ class Corpus(object):
         self.documents = []
         self.vocabulary = None
         self.likelihoods = []
+        self.date_to_document = {}
         self.documents_path = documents_path
         self.term_doc_matrix = None 
         self.document_topic_prob = None  # P(z | d)
@@ -55,7 +57,13 @@ class Corpus(object):
             self.number_of_documents += 1
         f.close()
 
-        for doc in docs:
+        for i, doc in enumerate(docs):
+            doc_date = doc.split("\t")[0]
+            if doc_date in self.date_to_document:
+                self.date_to_document[doc_date].append(i)
+            else:
+                self.date_to_document[doc_date] = [i]
+
             cleaned_doc = strip_short(remove_stopwords(strip_numeric(strip_non_alphanum(doc))), minsize=3)
             self.documents.append(cleaned_doc)
 
