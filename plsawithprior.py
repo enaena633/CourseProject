@@ -35,13 +35,6 @@ class plsa(object):
         self.prior = None
         self.iterations = max_iterations
 
-    def build_corpus(self, documents):
-
-        for doc in documents:
-            cleaned_doc = preprocess_string(doc)
-            self.documents.append(cleaned_doc)
-            self.number_of_documents += 1
-
     def build_term_doc_matrix(self):
         """
         Construct the term-document matrix where each row represents a document, 
@@ -49,16 +42,18 @@ class plsa(object):
 
         self.term_doc_matrix[i][j] is the count of term j in document i
         """
-        self.term_doc_matrix = np.zeros([self.number_of_documents, len(self.vocabulary.keys())], np.int8)
-        for line in range(self.number_of_documents):
-            for word in self.documents[line]:
-                self.term_doc_matrix[line][self.vocabulary.get(word)] += 1
+        self.term_doc_matrix = np.zeros([self.number_of_documents, self.vocabulary_size], np.int8)
+        for doc in range(self.number_of_documents):
+            for word in self.vocabulary.doc2bow(self.documents[doc]):
+                self.term_doc_matrix[doc, word[0]] = word[1]
             
     def EM_calc(self):
         # E-step updates P(z | w, d)        
         for j in range(self.total_topics): 
             self.topic_prob[j] = np.expand_dims(self.document_topic_prob[:, j], 1) * np.expand_dims(self.topic_word_prob[j, :], 0)
-        self.topic_prob = self.topic_prob / np.sum(self.topic_prob, axis=0)
+        denominators = np.sum(self.topic_prob, axis=0)
+        denominators[denominators == 0] = 1
+        self.topic_prob = self.topic_prob / denominators
 
         # M-step update P(z | d)
         for j in range(self.total_topics):
@@ -72,7 +67,17 @@ class plsa(object):
         for j in range(self.number_of_topics, self.total_topics):
             self.topic_word_prob[j] = np.sum(np.multiply(self.term_doc_matrix, self.topic_prob[j]), axis=0) + self.mu * prior[j-self.number_of_topics]
             self.topic_word_prob[j] /= (np.sum(self.topic_word_prob[j]) + self.mu)
-      
+    
+
+    def calc_likelihood(self):
+        loglikelihood = np.sum(np.multiply(self.term_doc_matrix, np.log(np.matmul(self.document_topic_prob, self.topic_word_prob) + 1.0)))
+        if self.mu == 0:
+            return loglikelihood
+        expanded_prior = np.zeros([self.total_topics, self.vocabulary_size])
+        expanded_prior[self.number_of_topics:] = self.prior
+        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob + 1.0))))
+        return logMAP
+
     def initiate(self, documents, prior):
 
         """
@@ -91,6 +96,8 @@ class plsa(object):
             self.prior = prior
             self.total_topics += len(prior)
 
+        self.documents = documents
+        self.number_of_documents = len(self.documents)
         self.vocabulary_size = len(self.vocabulary)
         
         # build term-doc matrix
@@ -98,16 +105,19 @@ class plsa(object):
         
         # P(z | d, w)
         self.topic_prob = np.zeros([self.total_topics, self.number_of_documents, self.vocabulary_size], dtype=np.float)
+        print(self.topic_prob)
 
         # P(z | d) 
         self.document_topic_prob = np.random.random(size = (self.number_of_documents, self.total_topics))
         self.document_topic_prob = normalize(self.document_topic_prob)
+        print(self.document_topic_prob)
 
         # P(w | z)
         self.topic_word_prob = np.random.random(size = (self.total_topics, self.vocabulary_size))
         if prior is not None:
             self.topic_word_prob.append(prior)
-        self.topic_word_prob = normalize(self.topic_word_prob) 
+        self.topic_word_prob = normalize(self.topic_word_prob)
+        print(self.topic_word_prob)
 
         # Run the EM algorithm
         current_likelihood = 0.0
@@ -115,6 +125,7 @@ class plsa(object):
         for iteration in range(self.iterations):
             print("Iteration #" + str(iteration + 1) + "...")
             self.EM_calc()
+            print(self.calc_likelihood())
             
         print(datetime.now())
 
