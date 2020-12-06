@@ -23,19 +23,18 @@ Gore.drop('Price', inplace=True, axis=1)
 
 #calculate 3-day moving average of the probability of Gore winning
 for i in range(0,Gore.shape[0]-2):
-    Gore.loc[Gore.index[i+2],'P_Gore_wins_3MA'] = ((Gore.iloc[i,1]+ Gore.iloc[i+1,1] +Gore.iloc[i+2,1])/3)
-
+    Gore.loc[Gore.index[i+1],'P_Gore_wins_MA'] = ((Gore.iloc[i,1]+ Gore.iloc[i+1,1] +Gore.iloc[i+2,1])/3)
+Gore.loc[Gore.index[0],'P_Gore_wins_MA'] = ((Gore.iloc[0,1] + Gore.iloc[1,1])/2)
+Gore.loc[Gore.index[-1],'P_Gore_wins_MA'] = ((Gore.iloc[-1,1] + Gore.iloc[-2,1])/2)
 Gore.drop('P_Gore_wins', inplace=True, axis=1)
-Gore.dropna(inplace=True)
-Gore.reset_index(drop=True, inplace=True)
-
 
 '''  Granger Test '''
-Gore['test'] = Gore['P_Gore_wins_3MA'] - 0.005
+def granger_test(time_series_data, text_count):
+    time_series_data['count'] = text_count
+    data = np.diff(time_series_data.iloc[:,1:], axis = 0)
 
-def granger_test(data):
     #run granger test with maxlag of 5 days
-    granger_test_result = grangercausalitytests(data.iloc[:,1:], 5, addconst=True, verbose=False)
+    granger_test_result = grangercausalitytests(data, 5, addconst=True, verbose=False)
 
     #get the optimal lag based on the highest F-test value
     optimal_lag = -1
@@ -58,4 +57,3 @@ def granger_test(data):
     #output the sign of the impact value and significance value of the word
     return i_impact_positive,significance
 
-granger_test(Gore)
