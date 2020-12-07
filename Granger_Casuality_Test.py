@@ -51,9 +51,9 @@ def granger_test(time_series_data, text_count):
     significance = np.round(1 - granger_test_result[optimal_lag][0]['params_ftest'][1], 2)
     X_coeff_lst = granger_test_result[optimal_lag][1][1].params[:-1]
     if sum(X_coeff_lst)/len(X_coeff_lst) > 0:
-        i_impact_positive = 1
+        i_impact = 1
     else:
-        i_impact_positive = 0
+        i_impact = -1
     #output the sign of the impact value and significance value of the word
-    return i_impact_positive,significance
-
+    sigs = np.multiply(significance, i_impact)
+    return sigs
