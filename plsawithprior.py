@@ -75,7 +75,7 @@ class plsa(object):
             return loglikelihood
         expanded_prior = np.zeros([self.total_topics, self.vocabulary_size])
         expanded_prior[self.number_of_topics:] = self.prior
-        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob + 1.0))))
+        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob + 1.0) )))
         return logMAP
 
     def initiate(self, documents, prior):
