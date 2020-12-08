@@ -30,14 +30,11 @@ Gore.drop('P_Gore_wins', inplace=True, axis=1)
 
 '''  Granger Test '''
 #input: 
-#time_stamp is the nth day since 2000/05/01, for example, time_stamp is 3 for 2000/05/03
 #time_series_data is 182x2 in dimension with first column being date
-#text_count_stream should be topic count across documents or word count across documents under a significant topic - dimension of nth days since 2000/05/01 by 1 (topic/word)
-def granger_test(time_stamp, time_series_data, text_count_stream):
-    data = pd.DataFrame()
-    data = time_series_data.iloc[:time_stamp,:]
-    data['count'] = text_count_stream
-    data = np.diff(data.iloc[:,1:], axis = 0)
+#text_count_stream should be topic count across documents or word count across documents under a significant topic - 182x1 dimension
+def granger_test(time_series_data, text_count_stream):
+    time_series_data['count'] = text_count_stream
+    data = np.diff(time_series_data.iloc[:,1:], axis = 0)
 
     #run granger test with maxlag of 5 days
     granger_test_result = grangercausalitytests(data, 5, addconst=True, verbose=False)
