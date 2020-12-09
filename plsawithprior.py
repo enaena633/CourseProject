@@ -22,7 +22,7 @@ def normalize(input_matrix):
        
 class plsa(object):
 
-    def __init__(self, number_of_topics, max_iterations, mu):
+    def __init__(self, number_of_topics, iterations, mu):
         """
         Initialize a new plsa object with a new document, vocabulary, and matrices based on the number of topic and number of iterations given.
         """
@@ -38,7 +38,7 @@ class plsa(object):
         self.total_topics = 0
         self.mu = mu
         self.prior = None
-        self.iterations = max_iterations
+        self.iterations = iterations
 
     def build_document(self):
         """ 
@@ -61,7 +61,7 @@ class plsa(object):
 
         self.term_doc_matrix[i][j] is the count of term j in document i
         """
-        self.term_doc_matrix = np.zeros([self.number_of_documents, self.vocabulary_size], np.int8)
+        self.term_doc_matrix = np.zeros([self.number_of_documents, self.vocabulary_size], np.int16)
         for doc in range(self.number_of_documents):
             for word in self.vocabulary.doc2bow(self.documents[doc]):
                 self.term_doc_matrix[doc, word[0]] = word[1]
@@ -69,7 +69,7 @@ class plsa(object):
     def EM_calc(self):
         # E-step updates P(z | w, d)        
         for j in range(self.total_topics): 
-            self.topic_prob[j] = np.expand_dims(self.document_topic_prob[:, j], 1) * np.expand_dims(self.topic_word_prob[j, :], 0)
+            self.topic_prob[j] = self.document_topic_prob[:, j, None] * self.topic_word_prob[None, j, :]
         denominators = np.sum(self.topic_prob, axis=0)
         denominators[denominators == 0] = 1
         self.topic_prob = self.topic_prob / denominators
@@ -77,23 +77,23 @@ class plsa(object):
         # M-step update P(z | d)
         for j in range(self.total_topics):
             self.document_topic_prob[:, j] = np.sum(np.multiply(self.term_doc_matrix, self.topic_prob[j]), axis=1)
-            self.document_topic_prob[:, j] /= np.sum(self.document_topic_prob[:, j]) 
+        self.document_topic_prob /= np.sum(self.document_topic_prob, axis=1, keepdims=True) 
         
         # update P(w | z)
         for j in range(self.number_of_topics):
             self.topic_word_prob[j] = np.sum(np.multiply(self.term_doc_matrix, self.topic_prob[j]), axis=0)
             self.topic_word_prob[j] /= np.sum(self.topic_word_prob[j])
         for j in range(self.number_of_topics, self.total_topics):
-            self.topic_word_prob[j] = np.sum(np.multiply(self.term_doc_matrix, self.topic_prob[j]), axis=0) + self.mu * prior[j-self.number_of_topics]
+            self.topic_word_prob[j] = np.sum(np.multiply(self.term_doc_matrix, self.topic_prob[j]), axis=0) + self.mu * self.prior[j-self.number_of_topics]
             self.topic_word_prob[j] /= (np.sum(self.topic_word_prob[j]) + self.mu)
     
     def calc_likelihood(self):
         loglikelihood = np.sum(np.multiply(self.term_doc_matrix, np.log(np.matmul(self.document_topic_prob, self.topic_word_prob))))
-        if self.mu == 0:
+        if self.prior is None:
             return loglikelihood
         expanded_prior = np.zeros([self.total_topics, self.vocabulary_size])
         expanded_prior[self.number_of_topics:] = self.prior
-        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob) )))
+        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob))))
         return logMAP
 
         """ loglikelihood = 0
@@ -117,11 +117,9 @@ class plsa(object):
 
         # determine if there is prior
         if prior is None:
-            self.mu = 0
             self.build_document()
 
         else:
-            self.mu = mu
             self.prior = prior
             self.total_topics += len(prior)
       
@@ -152,7 +150,7 @@ class plsa(object):
 
 def main():
     number_of_topics = 10
-    max_iterations = 30
+    max_iterations = 100
     mu = 30
     pl = plsa(number_of_topics, max_iterations, mu)    
     prior = None
