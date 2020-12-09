@@ -1,4 +1,9 @@
+""" 
+Coded by: Jack Ma, Ena Yu, and Matt McCarty, Team JEM University of Illinois at Urbana Champaign
+CS 410 Text Information System Fall 2020 Final Project
+"""
 import numpy as np
+import math
 from datetime import datetime
 import gensim as gn
 from gensim import corpora
@@ -17,23 +22,37 @@ def normalize(input_matrix):
        
 class plsa(object):
 
-    def __init__(self, vocabulary, number_of_topics, max_iterations, mu):
+    def __init__(self, number_of_topics, max_iterations, mu):
         """
-        Initialize empty document list.
+        Initialize a new plsa object with a new document, vocabulary, and matrices based on the number of topic and number of iterations given.
         """
         self.documents = []
-        self.vocabulary = vocabulary
+        self.vocabulary = []
         self.term_doc_matrix = None 
         self.document_topic_prob = None  # P(z | d)
         self.topic_word_prob = None  # P(w | z)
         self.topic_prob = None  # P(z | d, w)
-        self.number_of_documents = 0
-        self.vocabulary_size = 0
+        self.number_of_documents = []
+        self.vocabulary_size = []
         self.number_of_topics = number_of_topics
         self.total_topics = 0
         self.mu = mu
         self.prior = None
         self.iterations = max_iterations
+
+    def build_document(self):
+        """ 
+        Open up the pre-processed document, read it in, use the gensim preprocess_document function to process it (see gensim for documentation).
+        Then build a vocabulary based on the processed documents.
+        """
+        with open('consolidated_nyt.tsv') as r:
+            self.documents = r.read().splitlines()
+        self.documents = preprocess_documents(self.documents)
+        self.number_of_documents = len(self.documents)
+        self.vocabulary = corpora.Dictionary(self.documents)
+        self.vocabulary_size = len(self.vocabulary)
+        print("Number of documents:" + str(len(self.documents)))
+        print("Vocabulary size:" + str(self.vocabulary_size))
 
     def build_term_doc_matrix(self):
         """
@@ -68,17 +87,26 @@ class plsa(object):
             self.topic_word_prob[j] = np.sum(np.multiply(self.term_doc_matrix, self.topic_prob[j]), axis=0) + self.mu * prior[j-self.number_of_topics]
             self.topic_word_prob[j] /= (np.sum(self.topic_word_prob[j]) + self.mu)
     
-
     def calc_likelihood(self):
-        loglikelihood = np.sum(np.multiply(self.term_doc_matrix, np.log(np.matmul(self.document_topic_prob, self.topic_word_prob) + 1.0)))
+        loglikelihood = np.sum(np.multiply(self.term_doc_matrix, np.log(np.matmul(self.document_topic_prob, self.topic_word_prob))))
         if self.mu == 0:
             return loglikelihood
         expanded_prior = np.zeros([self.total_topics, self.vocabulary_size])
         expanded_prior[self.number_of_topics:] = self.prior
-        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob + 1.0) )))
+        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob) )))
         return logMAP
 
-    def initiate(self, documents, prior):
+        """ loglikelihood = 0
+        for i in range(0, self.number_of_documents):
+            for j in range(0, self.vocabulary_size):
+                tmp = 0
+                for k in range(0, self.number_of_topics):
+                    tmp += self.topic_word_prob[k, j] * self.document_topic_prob[i, k]
+                if tmp > 0:
+                    loglikelihood += self.term_doc_matrix[i, j] * math.log(tmp)        
+        return loglikelihood """
+
+    def initiate(self, prior):
 
         """
         Model topics.
@@ -90,38 +118,30 @@ class plsa(object):
         # determine if there is prior
         if prior is None:
             self.mu = 0
+            self.build_document()
 
         else:
             self.mu = mu
             self.prior = prior
             self.total_topics += len(prior)
-
-        self.documents = documents
-        self.number_of_documents = len(self.documents)
-        self.vocabulary_size = len(self.vocabulary)
-        
+      
         # build term-doc matrix
         self.build_term_doc_matrix()
         
         # P(z | d, w)
         self.topic_prob = np.zeros([self.total_topics, self.number_of_documents, self.vocabulary_size], dtype=np.float)
-        print(self.topic_prob)
 
         # P(z | d) 
         self.document_topic_prob = np.random.random(size = (self.number_of_documents, self.total_topics))
         self.document_topic_prob = normalize(self.document_topic_prob)
-        print(self.document_topic_prob)
 
         # P(w | z)
         self.topic_word_prob = np.random.random(size = (self.total_topics, self.vocabulary_size))
         if prior is not None:
             self.topic_word_prob.append(prior)
         self.topic_word_prob = normalize(self.topic_word_prob)
-        print(self.topic_word_prob)
 
         # Run the EM algorithm
-        current_likelihood = 0.0
-
         for iteration in range(self.iterations):
             print("Iteration #" + str(iteration + 1) + "...")
             self.EM_calc()
@@ -129,34 +149,14 @@ class plsa(object):
             
         print(datetime.now())
 
-def build_vocabulary():
-    documents = []
-    with open('sanitized_nyt.tsv') as f:
-        documents = f.read().splitlines()
-    documents = preprocess_documents(documents)
-    vocabulary = corpora.Dictionary(documents)
-    vocabulary_size = len(vocabulary)
-    print("Vocabulary size:" + str(vocabulary_size))
-    return vocabulary
-
-def build_document():
-    documents = []
-    with open('sanitized_nyt2.tsv') as f:
-        documents = f.read().splitlines()
-    documents = preprocess_documents(documents)
-
-    print("Number of documents:" + str(len(documents)))
-    return documents
 
 def main():
-    vocabulary = build_vocabulary()
-    number_of_topics = 30
-    max_iterations = 50
+    number_of_topics = 10
+    max_iterations = 30
     mu = 30
-    pl = plsa(vocabulary, number_of_topics, max_iterations, mu)
-    documents = build_document()
+    pl = plsa(number_of_topics, max_iterations, mu)    
     prior = None
-    pl.initiate(documents, prior)
+    pl.initiate(prior)
 
 if __name__ == '__main__':
     main()

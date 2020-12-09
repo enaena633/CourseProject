@@ -1,3 +1,6 @@
+""" Coded by: Jack Ma, Ena Yu, and Matt McCarty, Team JEM University of Illinois at Urbana Champaign
+CS 410 Text Information System Fall 2020 Final Project
+ """
 import numpy as np
 
 """ input two array of x by y where x is the number of topics and y is the words in the vocabulary
