@@ -6,6 +6,7 @@ import numpy as np
 import gensim as gn
 from gensim import corpora
 from gensim.parsing.preprocessing import preprocess_documents
+from gensim.parsing.preprocessing import STOPWORDS
 
 def normalize(input_matrix):
     # This method was copied directly from MP3 with no changes, all credit to the writer of MP3
@@ -152,6 +153,11 @@ def main():
     pl = plsa(number_of_topics, max_iterations, mu)    
     prior = None
     pl.initiate()
+    for topic in pl.topic_word_prob:
+        top_words = np.argpartition(topic, -3)[-3:]
+        for word in top_words:
+            print(pl.vocabulary.get(word), end = ' ')
+        print('')
 
 if __name__ == '__main__':
     main()
