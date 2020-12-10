@@ -3,8 +3,6 @@ Coded by: Jack Ma, Ena Yu, and Matt McCarty, Team JEM University of Illinois at 
 CS 410 Text Information System Fall 2020 Final Project
 """
 import numpy as np
-import math
-from datetime import datetime
 import gensim as gn
 from gensim import corpora
 from gensim.parsing.preprocessing import preprocess_documents
@@ -39,7 +37,7 @@ class plsa(object):
         self.prior = None
         self.iterations = iterations
 
-    def _build_document(self):
+    def __build_document(self):
         """ 
         Open up the pre-processed document, read it in, use the gensim preprocess_document function to process it (see gensim for documentation).
         Then build a vocabulary based on the processed documents.
@@ -53,7 +51,7 @@ class plsa(object):
         print("Number of documents:" + str(len(self.documents)))
         print("Vocabulary size:" + str(self.vocabulary_size))
 
-    def _build_term_doc_matrix(self):
+    def __build_term_doc_matrix(self):
         """
         Construct the term-document matrix where each row represents a document, and each column represents a vocabulary term.
         This is accomplished by using doc2bow (see gensim) method on the vocabulary dictionary. 
@@ -64,7 +62,7 @@ class plsa(object):
             for word in self.vocabulary.doc2bow(self.documents[doc]):
                 self.term_doc_matrix[doc, word[0]] = word[1]
             
-    def _EM_calc(self):
+    def __EM_calc(self):
         """
         This is where the magic of PLSA happens. This uses numpy matrix manipulation to compute the EM steps in PLSA.
         The second part of the M step take prior into consideration if there is a prior.
@@ -91,7 +89,7 @@ class plsa(object):
             self.topic_word_prob[j] = np.sum(np.multiply(self.term_doc_matrix, self.topic_prob[j]), axis=0) + self.mu * self.prior[j-self.number_of_topics]
             self.topic_word_prob[j] /= (np.sum(self.topic_word_prob[j]) + self.mu)
     
-    def _calc_likelihood(self):
+    def __calc_likelihood(self):
         """
         Calculate the log likelihood or the maximum a posteriori (MAP) estimation.
         """
@@ -103,7 +101,7 @@ class plsa(object):
         logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob))))
         return logMAP
 
-    def _build_matrices(self):
+    def __build_matrices(self):
         """
         Initialize the matrices with starting values, including normalization.
         If there is a prior, append the prior to the topic_word_prob matrix.
@@ -121,22 +119,22 @@ class plsa(object):
             self.topic_word_prob.append(prior)
         self.topic_word_prob = normalize(self.topic_word_prob)
 
-    def _run_algorithm(self):        
+    def __run_algorithm(self):        
         # Run the EM algorithm and print the calculated likelihood or MAP
         for iteration in range(self.iterations):
             print("Iteration #" + str(iteration + 1) + "...")
-            self._EM_calc()
-            print(self._calc_likelihood())
+            self.__EM_calc()
+            print(self.__calc_likelihood())
 
     def initiate(self):
         """
         The first initial run of the PLSA program, build the document, vocabulary and term_doc matrix. 
         As the document, vocabulary, and the term_doc (word count) matrix are not changed by the prior, this method should only run one time. 
         """
-        self._build_document()
-        self._build_term_doc_matrix()
-        self._build_matrices()
-        self._run_algorithm()
+        self.__build_document()
+        self.__build_term_doc_matrix()
+        self.__build_matrices()
+        self.__run_algorithm()
             
     def calc_with_prior(self, prior):
         """
@@ -144,11 +142,11 @@ class plsa(object):
         """
         self.prior = prior
         self.total_topics = self.number_of_topics + len(prior)
-        self._build_matrices()
-        self._run_algorithm()
+        self.__build_matrices()
+        self.__run_algorithm()
 
 def main():
-    number_of_topics = 10
+    number_of_topics = 30
     max_iterations = 50
     mu = 30
     pl = plsa(number_of_topics, max_iterations, mu)    
