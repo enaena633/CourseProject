@@ -130,7 +130,7 @@ class plsa(object):
     def initiate(self):
         """
         The first initial run of the PLSA program, build the document, vocabulary and term_doc matrix. 
-        As the document, vocabulary, and the term_doc (word count) matrix are not changed by the prior, this method should only run one time. 
+        As the document, vocabulary, and the term_doc (word count) matrix are not changed by the prior, this function should only run one time. 
         """
         self.__build_document()
         self.__build_term_doc_matrix()
@@ -139,7 +139,7 @@ class plsa(object):
             
     def calc_with_prior(self, prior):
         """
-        After the initial run, the PLSA program will take in the prior and rerun the entire program with the prior added. 
+        After the initial run, the PLSA program will take in the prior and rerun the calculations with the prior added. 
         """
         self.prior = prior
         self.total_topics = self.number_of_topics + len(prior)

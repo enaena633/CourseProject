@@ -16,7 +16,7 @@ def main():
     prior = None
     pl.initiate()
 
-    # Run the granger test and feedback back the prior to PLSA 5 times. 
+    # Run the granger test and feed back the prior to PLSA 5 times. 
     for i in range(5):
         granger_result = granger(pl.document_topic_prob, pl.topic_word_prob, pl.term_doc_matrix)
         prior = cp.calc_prior()
