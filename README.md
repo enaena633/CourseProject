@@ -27,7 +27,7 @@ The experiment was reproduced in Python (version 3.8.6) with the help of several
 * `gensim` - for generating a mapping between a token id and the _normalized_ words which they represent
 * `statsmodels` - for the time-series causality test
 
-The algorithm itself is a modified version of the PLSA algorithm, which was initially implemented for a homework assignment (MP3) in CS410 at UIUC. The code contains a `plsa` class which contains many variables of use, some of which are highlighted below:
+The algorithm itself is a modified version of the PLSA algorithm, which was initially implemented for a homework assignment (MP3) in CS410 at UIUC. The `plsawithprior.py` file contains a `plsa` class which contains many variables of use, some of which are highlighted below:
 
 * `document_topic_prob` - the probability of `p(z | d)` where `z` represents a specific topic and `d` represents a specific document
 * `mu` - the strength of the prior probability (when `mu=0`, the result would match PLSA with no prior)
