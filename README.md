@@ -16,7 +16,7 @@ ACM, New York, NY, USA, 885-890. DOI=10.1145/2505515.2505612
 
 The intent of this paper is to develop a method to consider additional contextual data (specifically, in the form of a time series) to supplement topic mining. The paper discusses two scenarios (presidential elections and stock prices); we chose to replicate the former.
 
-The specific experiment that was replicated involves determining topics from NYT articles from May-October 2000, with the additional context of betting odds for Bush and Gore winning the 2000 Presidential election. There are two files which are used as input for the Python code. One is the time series data for the betting odds, which is located in `Iowa2000PresidentOdds.csv`. The second input file, `sanitized_nyt.tsv`, is a list of NYT articles between May and October 2000. The NYT articles were filtered by 'Bush' and 'Gore' keywords to ensure that non-relevant documents were not considered for topic generation. The article date is also included with the article content, so that the time context of the article's publication can be considered with the presidential odds time series.
+The specific experiment that was replicated involves determining topics from NYT articles from May-October 2000, with the additional context of betting odds for Bush and Gore winning the 2000 Presidential election. There are two files which are used as input for the Python code. One is the time series data for the betting odds, which is located in `Iowa2000PresidentOdds.csv`. The second input file, `consolidated_nyt.tsv`, is a list of NYT articles between May and October 2000. The NYT articles were filtered by 'Bush' and 'Gore' keywords to ensure that non-relevant documents were not considered for topic generation. The article date is also included with the article content, so that the time context of the article's publication can be considered with the presidential odds time series.
 
 The output of the program will be a list of topics, and the top three words within each topics. Unlike the simple PSLA algorithm, these topics highlight words that are highly correlated with the change of betting odds for Bush or Gore winning the election. The number of topics is determined by a parameter _tn_, and the paper discusses the performance of the algorithm with varying values of _tn_. For the purposes of our experiment reproduction, we chose _tn=10_.
 
@@ -45,7 +45,7 @@ Future modifications could be made to the algorithm to change how the prior is g
 * `gensim`
 * `statsmodels`
 
-4. Run `python plsawithprior.py` in the repository directory.
+4. Run `python main.py` in the repository directory.
 
 ## Team Member Contributions
 All team members were engaged and involved in reproducing the experiment from the paper sourced above. In addition to weekly meetings which everyone participated in, individual team members were responsible for the following:
