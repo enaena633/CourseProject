@@ -25,20 +25,26 @@ def main():
         for j in range(pl.total_topics):
             topic_significance = np.absolute(granger(time_series_data, pl.document_topic_prob[:, j]))
             topics.append(topic_significance)
+
         top_topics = np.argpartition(topics, -5)[-5:]
+
 
         #get word significance from the top ten topics
         sig_array = []
         for top_topic in top_topics:
             sig_array_per_topic = np.zeros(pl.vocabulary_size)
             topic_word_prob_dist = pl.topic_word_prob[top_topic,:]
+
             for m in np.argpartition(topic_word_prob_dist, -100)[-100:]:
+
                 word_stream = pl.term_doc_matrix[:, m]
                 word_significance = granger(time_series_data, word_stream)
                 sig_array_per_topic[m] = word_significance
             sig_array.append(sig_array_per_topic)            
+
         prior = cp.calc_prior(np.asarray(sig_array))
         print('With prior number #' + str(i+1))
+
         pl.calc_with_prior(prior)
     
     # Run the granger one final time to find the ten top significant topics ater 5 iterations.
@@ -47,7 +53,7 @@ def main():
     for j in range(pl.total_topics):
         topic_significance = np.absolute(granger(time_series_data, pl.document_topic_prob[:, j]))
         topics.append(topic_significance)
-    top_topics = np.argpartition(topics, -10)[-10:]
+    top_topics = np.argpartition(topics, -number_of_top_topics)[-number_of_top_topics:]
 
     #get word significance from the top ten topics
     sig_array = []

@@ -8,6 +8,7 @@ def calc_prior(significance):
     Input an array of impact and significance. Positive significance means positive impact and vice versa. 
     """
     prior = []
+
     # separate the significance according to their impact
     positive_sigs = significance- .9
     negative_sigs = -significance - .9
@@ -32,5 +33,6 @@ def calc_prior(significance):
     
     if not prior:
         return None
+
 
     return np.asarray(prior)

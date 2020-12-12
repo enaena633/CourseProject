@@ -119,7 +119,7 @@ class plsa(object):
         self.topic_word_prob = np.random.random(size = (self.number_of_topics, self.vocabulary_size))
         if self.prior is not None:
             self.topic_word_prob = np.concatenate((self.topic_word_prob, self.prior))
-            
+
         self.topic_word_prob = normalize(self.topic_word_prob)
 
     def __run_algorithm(self):        
