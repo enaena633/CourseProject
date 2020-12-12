@@ -17,6 +17,20 @@ Gore[['Date','Price']]=data[data['Contract']=='Dem'][['Date','AvgPrice']]
 Bush[['Date','Price']]=data[data['Contract']=='Rep'][['Date','AvgPrice']]
 Gore.reset_index(drop=True, inplace=True)
 Bush.reset_index(drop=True, inplace=True)
+
+#extrapolate missing dates (2000-06-07, 2000-06-08)
+Gore_price1 = Gore.iloc[36,1] + (Gore.iloc[37,1]-Gore.iloc[36,1])/4
+Gore_price2 = Gore.iloc[36,1] + (Gore.iloc[37,1]-Gore.iloc[36,1])/2
+Gore.loc[36.4]='06/07/00', Gore_price1
+Gore.loc[36.8]='06/08/00', Gore_price2
+Gore = Gore.sort_index().reset_index(drop=True)
+
+Bush_price1 = Bush.iloc[36,1] + (Bush.iloc[37,1]-Bush.iloc[36,1])/4
+Bush_price2 = Bush.iloc[36,1] + (Bush.iloc[37,1]-Bush.iloc[36,1])/2
+Bush.loc[36.4]='06/07/00', Bush_price1
+Bush.loc[36.8]='06/08/00', Bush_price2
+Bush = Bush.sort_index().reset_index(drop=True)
+
 #calculate the normalized probability of Gore winning the election
 Gore['P_Gore_wins'] = Gore['Price']/(Gore['Price']+Bush["Price"])
 Gore.drop('Price', inplace=True, axis=1)
@@ -28,10 +42,15 @@ Gore.loc[Gore.index[0],'P_Gore_wins_MA'] = ((Gore.iloc[0,1] + Gore.iloc[1,1])/2)
 Gore.loc[Gore.index[-1],'P_Gore_wins_MA'] = ((Gore.iloc[-1,1] + Gore.iloc[-2,1])/2)
 Gore.drop('P_Gore_wins', inplace=True, axis=1)
 
+#output cleaned presidential odds to csv file
+Gore.to_csv('time_series.csv',index=False)
+
+
+
 '''  Granger Test '''
 #input: 
-#time_series_data is 182x2 in dimension with first column being date
-#text_count_stream should be topic count across documents or word count across documents under a significant topic - 182x1 dimension
+#time_series_data is 184x2 in dimension with first column being date
+#text_count_stream should be topic count across documents or word count across documents under a significant topic - 184x1 dimension
 def granger_test(time_series_data, text_count_stream):
     time_series_data['count'] = text_count_stream
     data = np.diff(time_series_data.iloc[:,1:], axis = 0)
