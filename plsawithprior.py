@@ -37,6 +37,7 @@ class plsa(object):
         self.mu = mu
         self.prior = None
         self.iterations = iterations
+        self.epsilon = 1e-8
 
     def __build_document(self):
         """ 
@@ -94,12 +95,12 @@ class plsa(object):
         """
         Calculate the log likelihood or the maximum a posteriori (MAP) estimation.
         """
-        loglikelihood = np.sum(np.multiply(self.term_doc_matrix, np.log(np.matmul(self.document_topic_prob, self.topic_word_prob))))
+        loglikelihood = np.sum(np.multiply(self.term_doc_matrix, np.log(np.matmul(self.document_topic_prob, self.topic_word_prob) + self.epsilon)))
         if self.prior is None:
             return loglikelihood
         expanded_prior = np.zeros([self.total_topics, self.vocabulary_size])
         expanded_prior[self.number_of_topics:] = self.prior
-        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob))))
+        logMAP = loglikelihood + self.mu * np.sum((np.multiply(expanded_prior, np.log(self.topic_word_prob + self.epsilon))))
         return logMAP
 
     def __build_matrices(self):
@@ -117,7 +118,8 @@ class plsa(object):
         # P(w | z)
         self.topic_word_prob = np.random.random(size = (self.number_of_topics, self.vocabulary_size))
         if self.prior is not None:
-            np.concatenate(self.topic_word_prob, np.asarray(self.prior))
+            self.topic_word_prob = np.concatenate((self.topic_word_prob, self.prior))
+            
         self.topic_word_prob = normalize(self.topic_word_prob)
 
     def __run_algorithm(self):        
@@ -145,19 +147,3 @@ class plsa(object):
         self.total_topics = self.number_of_topics + len(prior)
         self.__build_matrices()
         self.__run_algorithm()
-
-def main():
-    number_of_topics = 30
-    max_iterations = 50
-    mu = 30
-    pl = plsa(number_of_topics, max_iterations, mu)    
-    prior = None
-    pl.initiate()
-    for topic in pl.topic_word_prob:
-        top_words = np.argpartition(topic, -3)[-3:]
-        for word in top_words:
-            print(pl.vocabulary.get(word), end = ' ')
-        print('')
-
-if __name__ == '__main__':
-    main()
