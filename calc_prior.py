@@ -10,8 +10,8 @@ def calc_prior(significance):
     """
     prior = []
     # separate the significance according to their impact
-    positive_sigs = significance- 95
-    negative_sigs = -significance - 95
+    positive_sigs = significance- .9
+    negative_sigs = -significance - .9
     positive_sigs[positive_sigs<0] = 0
     negative_sigs[negative_sigs<0] = 0
 
@@ -21,14 +21,15 @@ def calc_prior(significance):
             pos_orientation = np.count_nonzero(positive_sigs[i])
             neg_orientation = np.count_nonzero(negative_sigs[i])
             tot = pos_orientation + neg_orientation
-            pos_percent = pos_orientation / tot
-            if (pos_percent < 0.1):
-               prior.append(negative_sigs[i]/np.sum(negative_sigs[i]))
-            elif (pos_percent > 0.9):
-                prior.append(positive_sigs[i]/np.sum(positive_sigs[i]))
-            else:
-                prior.append(positive_sigs[i]/np.sum(positive_sigs[i]))
-                prior.append(negative_sigs[i]/np.sum(negative_sigs[i]))
+            if tot != 0:
+                pos_percent = pos_orientation / tot
+                if (pos_percent < 0.1):
+                   prior.append(negative_sigs[i]/np.sum(negative_sigs[i]))
+                elif (pos_percent > 0.9):
+                    prior.append(positive_sigs[i]/np.sum(positive_sigs[i]))
+                else:
+                    prior.append(positive_sigs[i]/np.sum(positive_sigs[i]))
+                    prior.append(negative_sigs[i]/np.sum(negative_sigs[i]))
                 
     return prior
 
