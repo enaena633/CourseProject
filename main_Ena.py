@@ -34,9 +34,7 @@ def main():
         for top_topic in top_topics:
             sig_array_per_topic = np.zeros(pl.vocabulary_size)
             topic_word_prob_dist = pl.topic_word_prob[top_topic,:]
-
             for m in np.argpartition(topic_word_prob_dist, -100)[-100:]:
-
                 word_stream = pl.term_doc_matrix[:, m]
                 word_significance = granger(time_series_data, word_stream)
                 sig_array_per_topic[m] = word_significance
@@ -53,7 +51,7 @@ def main():
     for j in range(pl.total_topics):
         topic_significance = np.absolute(granger(time_series_data, pl.document_topic_prob[:, j]))
         topics.append(topic_significance)
-    top_topics = np.argpartition(topics, -number_of_top_topics)[-number_of_top_topics:]
+        top_topics = np.argpartition(topics, -number_of_top_topics)[-number_of_top_topics:]
 
     #get word significance from the top ten topics
     sig_array = []

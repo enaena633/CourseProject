@@ -59,7 +59,7 @@ def granger_test(time_series_data, text_count_stream):
     granger_test_result = grangercausalitytests(data, 5, addconst=True, verbose=False)
 
     #get the optimal lag based on the highest F-test value
-    optimal_lag = -1
+    optimal_lag = 1
     F_test = -1.0
     for key in granger_test_result.keys():
         _F_test_ = granger_test_result[key][0]['params_ftest'][0]
