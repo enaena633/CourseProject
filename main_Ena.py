@@ -32,7 +32,7 @@ def main():
         for top_topic in top_topics:
             sig_array_per_topic = []
             for m in range(pl.vocabulary_size):
-                word_stream = np.matmul(pl.term_doc_matrix[:, m], pl.topic_word_prob[top_topic, m])
+                word_stream = np.multiply(pl.term_doc_matrix[:, m], pl.topic_word_prob[top_topic, m])
                 word_significance = granger(time_series_data, word_stream)
                 sig_array_per_topic.append(word_significance)
             sig_array.append(sig_array_per_topic)            
@@ -52,7 +52,7 @@ def main():
     for top_topic in top_topics:
         sig_array_per_topic = []
         for m in range(pl.vocabulary_size):
-            word_stream = np.matmul(pl.term_doc_matrix[:, m], pl.topic_word_prob[top_topic, m])
+            word_stream = np.multiply(pl.term_doc_matrix[:, m], pl.topic_word_prob[top_topic, m])
             word_significance = granger(time_series_data, word_stream)
             sig_array_per_topic.append(word_significance)
         sig_array.append(sig_array_per_topic)            
