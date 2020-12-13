@@ -10,7 +10,7 @@ def calc_prior(significance):
     prior = []
 
     # separate the significance according to their impact
-    cutoff = .5
+    cutoff = .9
     positive_sigs = significance - cutoff
     negative_sigs = -significance - cutoff
     positive_sigs[positive_sigs<0] = 0
