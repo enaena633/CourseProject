@@ -83,6 +83,7 @@ This can be explained by the following:
 
 * The implementation of several elements of the algorithm (Granger causality test, PLSA, etc.) were implemented in Python, whereas the paper used R.
 * We used the `gensim` package to perform stemming of words (which would cause words like `econom` to appear instead of `economy` or `economic`).
+* `gensim` was also used to remove stop words. The paper does not specify whether a background language model was used in its implementation of PLSA or if any stop word removal was done.
 * The EM algorithm is guaranteed to converge to a local (but not necessarily global) maximum, which causes output to be different even with the same implementation when different random starting values are used.
 * Certain parameters in the paper are not specified (e.g., the threshold value gamma for the significance cutoff for words at the topic level, we used 90%).
 
