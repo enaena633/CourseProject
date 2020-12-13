@@ -6,6 +6,10 @@ Zhangzhou Yu (leader)
 Matthew McCarty
 Jack Ma
 
+## Presentation/Demo
+
+A presentation and demonstration of installing and running the application is available at https://mediaspace.illinois.edu/media/t/1_yra0qvjp .
+
 ## Overview
 This repository contains code to replicate an experiment done in a paper regarding causal topic mining with time series feedback:
 
