@@ -3,14 +3,13 @@ CS 410 Text Information System Fall 2020 Final Project
 """
 import numpy as np
 
-def calc_prior(significance):
+def calc_prior(significance, cutoff):
     """ 
     Input an array of impact and significance. Positive significance means positive impact and vice versa. 
     """
     prior = []
 
     # separate the significance according to their impact
-    cutoff = .9
     positive_sigs = significance - cutoff
     negative_sigs = -significance - cutoff
     positive_sigs[positive_sigs<0] = 0

@@ -15,6 +15,7 @@ def main():
     plsa_iterations = 30
     mu = 30
     prior_iterations = 1
+    significance_cutoff = 0.90
     pl = plsa.plsa(number_of_topics, plsa_iterations, mu)    
     prior = None
     pl.initiate()
@@ -44,7 +45,7 @@ def main():
                 else:
                     sig_array_per_topic[m] = word_significance
             sig_array.append(sig_array_per_topic)         
-        prior = cp.calc_prior(np.asarray(sig_array))
+        prior = cp.calc_prior(np.asarray(sig_array), significance_cutoff)
                
         print('With prior number #' + str(i+1))
         pl.calc_with_prior(prior)
@@ -70,7 +71,7 @@ def main():
             else:
                 sig_array_per_topic[m] = word_significance
         sig_array.append(sig_array_per_topic)         
-    prior = cp.calc_prior(np.asarray(sig_array))
+    prior = cp.calc_prior(np.asarray(sig_array), significance_cutoff)
     
     for topic in prior:
         top_words = np.argpartition(topic, -3)[-3:]
