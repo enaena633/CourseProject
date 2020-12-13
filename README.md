@@ -67,6 +67,16 @@ win ralli church
 These results are different from the paper's results, which are included below:
 
 ```
+tax cut 1
+screen pataki giuliani
+enthusiasm door symbolic
+oil energy prices
+pres al vice
+love tucker presented
+partial abortion privatization
+court supreme abortion
+gun control nra
+news w top
 ```
 
 This can be explained by the following:
