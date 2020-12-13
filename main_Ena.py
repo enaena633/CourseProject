@@ -12,10 +12,12 @@ import calc_prior as cp
 def main():
     # Define the parameters of the experiment. Defaults to Tn = 30, Mu = 30, and 50 PLSA iterations to converge the result.
     number_of_topics = 30
-    plsa_iterations = 30
+    plsa_iterations = 50
     mu = 30
     prior_iterations = 1
     significance_cutoff = 0.90
+    significant_topics = 10
+    significant_words = 50
     pl = plsa.plsa(number_of_topics, plsa_iterations, mu)    
     prior = None
     pl.initiate()
@@ -30,14 +32,14 @@ def main():
             topic_significance = np.absolute(granger(time_series_data, pl.document_topic_prob[:, j]))
             topics.append(topic_significance)
 
-        top_topics = np.argpartition(topics, -10)[-10:]
+        top_topics = np.argpartition(topics, -significant_topics)[-significant_topics:]
 
         #get word significance from the top ten topics
         sig_array = []
         for top_topic in top_topics:
             sig_array_per_topic = np.zeros(pl.vocabulary_size)
             topic_word_prob_dist = pl.topic_word_prob[top_topic,:]
-            for m in np.argpartition(topic_word_prob_dist, -50)[-50:]:
+            for m in np.argpartition(topic_word_prob_dist, -significant_words)[-significant_words:]:
                 word_stream = pl.term_doc_matrix[:, m]
                 word_significance = granger(time_series_data, word_stream)
                 if math.isnan(word_significance):
@@ -56,14 +58,14 @@ def main():
     for j in range(pl.total_topics):
         topic_significance = np.absolute(granger(time_series_data, pl.document_topic_prob[:, j]))
         topics.append(topic_significance)
-    top_topics = np.argpartition(topics, -10)[-10:]
+    top_topics = np.argpartition(topics, -significant_topics)[-significant_topics:]
 
     #get word significance from the top ten topics
     sig_array = []
     for top_topic in top_topics:
         sig_array_per_topic = np.zeros(pl.vocabulary_size)
         topic_word_prob_dist = pl.topic_word_prob[top_topic,:]
-        for m in np.argpartition(topic_word_prob_dist, -50)[-50:]:
+        for m in np.argpartition(topic_word_prob_dist, -significant_words)[-significant_words:]:
             word_stream = pl.term_doc_matrix[:, m]
             word_significance = granger(time_series_data, word_stream)
             if math.isnan(word_significance):
