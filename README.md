@@ -20,9 +20,9 @@ ACM, New York, NY, USA, 885-890. DOI=10.1145/2505515.2505612
 
 The intent of this paper is to develop a method to consider additional contextual data (specifically, in the form of a time series) to supplement topic mining. The paper discusses two scenarios (presidential elections and stock prices); we chose to replicate the former.
 
-The specific experiment that was replicated involves determining topics from NYT articles from May-October 2000, with the additional context of betting odds for Bush and Gore winning the 2000 Presidential election. There are two files which are used as input for the Python code. One is the time series data for the betting odds, which is located in `Iowa2000PresidentOdds.csv`. The second input file, `consolidated_nyt.tsv`, is a list of NYT articles between May and October 2000. The NYT articles were filtered by 'Bush' and 'Gore' keywords to ensure that non-relevant documents were not considered for topic generation. The article date is also included with the article content, so that the time context of the article's publication can be considered with the presidential odds time series.
+The specific experiment that was replicated involves determining topics from New York Times (NYT) articles from May-October 2000, with the additional context of betting odds for Bush and Gore winning the 2000 Presidential election. There are two files which are used as input for the Python code. One is the time series data for the betting odds, which is located in `time_series.csv` (`Iowa2000PresidentOdds.csv` is the raw data). The second input file, `consolidated_nyt.tsv`, is a list of NYT articles between May and October 2000. The NYT articles were filtered by 'Bush' and 'Gore' keywords to ensure that non-relevant documents were not considered for topic generation. The article date is also included with the article content, so that the time context of the article's publication can be considered with the presidential odds time series.
 
-The output of the program will be a list of topics, and the top three words within each topics. Unlike the simple PSLA algorithm, these topics highlight words that are highly correlated with the change of betting odds for Bush or Gore winning the election. The number of topics is determined by a parameter _tn_, and the paper discusses the performance of the algorithm with varying values of _tn_. For the purposes of our experiment reproduction, we chose _tn=10_.
+The output of the program will be a list of topics, and the top three words within each topics. Unlike the plain vanilla PSLA algorithm, these topics highlight words that are highly correlated with the change of betting odds for Bush or Gore winning the election. The number of topics is determined by a parameter _tn_, and the paper discusses the performance of the algorithm with varying values of _tn_. For the purposes of our experiment reproduction, we chose _tn=10_.
 
 ## Software Implementation
 The experiment was reproduced in Python (version 3.8.6) with the help of several libraries, which are listed below:
@@ -33,10 +33,17 @@ The experiment was reproduced in Python (version 3.8.6) with the help of several
 
 The algorithm itself is a modified version of the PLSA algorithm, which was initially implemented for a homework assignment (MP3) in CS410 at UIUC. The `plsawithprior.py` file contains a `plsa` class which contains many variables of use, some of which are highlighted below:
 
+* `term_doc_matrix` - word count of terms in a given document
 * `document_topic_prob` - the probability of `p(z | d)` where `z` represents a specific topic and `d` represents a specific document
 * `mu` - the strength of the prior probability (when `mu=0`, the result would match PLSA with no prior)
 * `prior` - the _prior_ probability of `p(w | z)` where `w` represents a word and `z` represents a specific topic
 * `topic_word_prob` = the _posterior_ probability of `p(w | z)`
+
+Additional descriptions of software programs are illustrated below:
+* `Granger_Casuality_Test.py`- first clean the presidential betting odds time series raw data `Iowa2000PresidentOdds.csv` and output the cleaned data `time_series.csv`; implemented the granger casuality test function ready for use in `main.py`
+* `calc_prior.py` - calculate the prior of significant words within significant topics from the granger casuality test significance level output
+* `sanitize_nyt.py` - text data extraction, filtering and cleaning on the NYT articles from May-October 2000; output `consolidated_nyt.tsv` where each line contains documents with 'Bush' and 'Gore' keywords from one day (the number of lines in this clean text data matches with the number of rows in the clean time series data; readily available for use in the granger casuality test）
+* `main.py` - include all the functions discussed above; consolidated main program
 
 Future modifications could be made to the algorithm to change how the prior is generated (based on other time-series/non-document data source).
 
@@ -92,10 +99,10 @@ This can be explained by the following:
 * Certain parameters in the paper are not specified (e.g., the threshold value gamma for the significance cutoff for words at the topic level, we used 90%).
 
 ## Team Member Contributions
-All team members were engaged and involved in reproducing the experiment from the paper sourced above. In addition to weekly meetings which everyone participated in, individual team members were responsible for the following:
+All team members were engaged and involved in reproducing the experiment from the paper sourced above. In addition to weekly meetings where everyone contributed, individual team members were responsible for the following:
 
-Zhangzhou Yu (leader) - Granger causality test, administrative/organizational tasks
+Zhangzhou Yu (leader) - Time series data retrieval/cleaning, Granger causality test, administrative/organizational tasks
 
-Matthew McCarty - Data retrieval/cleaning, library research, documentation
+Matthew McCarty - Text data retrieval/cleaning, library research, documentation, presentation/demo recording
 
-Jack Ma - PLSA augmentation to include use of contextual time series data
+Jack Ma - PLSA augmentation to include use of contextual time series data, prior implementation, consolidate/structure software programs
