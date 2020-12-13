@@ -47,6 +47,35 @@ Future modifications could be made to the algorithm to change how the prior is g
 
 4. Run `python main.py` in the repository directory.
 
+## Results
+
+The following list is the top 3 words in the ten topics that were mined from the New York Times documents:
+
+```
+ad win ralli
+night lehrer trillion
+econom recent try
+support governor alaska
+state governor alaska
+governor clarenc right
+night win tuesdai
+wetston abm recent
+offic men try
+win ralli church
+```
+
+These results are different from the paper's results, which are included below:
+
+```
+```
+
+This can be explained by the following:
+
+* The implementation of several elements of the algorithm (Granger causality test, PLSA, etc.) were implemented in Python, whereas the paper used R.
+* We used the `gensim` package to perform stemming of words (which would cause words like `econom` to appear instead of `economy` or `economic`).
+* The EM algorithm is guaranteed to converge to a local (but not necessarily global) maximum, which causes output to be different even with the same implementation when different random starting values are used.
+* Certain parameters in the paper are not specified (e.g., the threshold value gamma for the significance cutoff for words at the topic level, we used 90%).
+
 ## Team Member Contributions
 All team members were engaged and involved in reproducing the experiment from the paper sourced above. In addition to weekly meetings which everyone participated in, individual team members were responsible for the following:
 
